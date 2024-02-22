@@ -16,11 +16,11 @@ class Background:
         self.bg_x=0
         self.bg_y=0
 
-    def draw(self,gameDisplay):
-        gameDisplay.blit(self.bg_img,(self.bg_x,self.bg_y))
+    def draw(self,gamedisplay):
+        gamedisplay.blit(self.bg_img,(self.bg_x,self.bg_y))
 
 
-#Start Button
+#Start button
 class StartButton:
     def __init__(self):
         
@@ -28,9 +28,9 @@ class StartButton:
         self.button_text = self.font.render("Start Game", True, (255, 255, 255))
         self.button_rect = self.button_text.get_rect(center=(400, 300))
 
-    def draw(self, gameDisplay):
-        pygame.draw.rect(gameDisplay, (0, 255, 0), self.button_rect, border_radius=10)
-        gameDisplay.blit(self.button_text, self.button_rect.topleft)
+    def draw(self, gamedisplay):
+        pygame.draw.rect(gamedisplay, (0, 0, 255), self.button_rect, border_radius=10)
+        gamedisplay.blit(self.button_text, self.button_rect.topleft)
         
 
     def clicked(self, mouse_pos):
@@ -50,8 +50,8 @@ class Playercar:
         self.crashed=False
         self.sound_method=Sound()
         
-    def draw(self,gameDisplay):
-        gameDisplay.blit(self.car,(self.x,self.y))
+    def draw(self,gamedisplay):
+        gamedisplay.blit(self.car,(self.x,self.y))
             
     def move(self, keys):
         if keys[pygame.K_LEFT] and self.x > 115:
@@ -60,13 +60,13 @@ class Playercar:
             self.x += self.speed
 
     def check_collision(self, enemy_cars):
-        for enemy_car in enemy_cars.enemy_instances:
+        for enemy_car in enemy_cars.instances:
             if (
                     self.x < enemy_car['x'] + 40 and
                     self.x + 40 > enemy_car['x'] and
                     self.y < enemy_car['y'] + 80 and
                     self.y + 80 > enemy_car['y']):
-                self.crashed = True  # Set the crashed flag
+                self.crashed = True  
                     
         
 # Score        
@@ -81,10 +81,10 @@ class Scoretext:
 
         
         
-    def draw(self,gameDisplay):
+    def draw(self,gamedisplay):
         
         text = self.font.render("Score: " + str(self.count), True, self.white)
-        gameDisplay.blit(text, (self.x, self.y))
+        gamedisplay.blit(text, (self.x, self.y))
 
     def increment_score(self):
         self.count += 1
@@ -96,11 +96,14 @@ class Sound:
         self.sound=os.path.join('Car_crash_sound.mp3')
 
 
+    
+
     def play(self):
         pygame.mixer.music.load(self.sound)
         pygame.mixer.music.play()
         
-      
+        
+
 #Crash
 class Crash:
     def __init__(self,player_car):
@@ -112,10 +115,10 @@ class Crash:
         self.img=pygame.transform.scale(self.image,(self.width,self.height))
         
         
-    def draw(self,gameDisplay):
+    def draw(self,gamedisplay):
         
         self.sound_method.play()
-        gameDisplay.blit(self.img,(self.player_car.x,self.player_car.y))
+        gamedisplay.blit(self.img,(self.player_car.x,self.player_car.y))
         pygame.time.delay(3000)
         print("You crashed! Total Score:",game_window.score.count)
         
@@ -140,16 +143,16 @@ class Enemycar:
         self.car2=pygame.transform.scale(self.enemy1,(width,height))
         self.enemy2 = pygame.image.load("images/enemy3.jpg")
         self.car3=pygame.transform.scale(self.enemy2,(width,height))
-        self.enemy_cars = [self.car1, self.car2, self.car3]  # List to store enemy car images
+        self.cars = [self.car1, self.car2, self.car3]  # List to store enemy car images
         self.spawn_timer = 0
-        self.enemy_instances = []  # List to store enemy car instances
+        self.instances = []  # List to store enemy car instances
         
 
     def move(self):
-        for enemy_car in self.enemy_instances:
-            enemy_car['y'] += self.speed
-            if enemy_car['y'] > 600:
-                self.enemy_instances.remove(enemy_car)
+        for car in self.instances:
+            car['y'] += self.speed
+            if car['y'] > 600:
+                self.instances.remove(car)
                 self.score.increment_score()
 
             
@@ -162,14 +165,14 @@ class Enemycar:
     def spawn(self):
         self.x = random.randint(120, 660)
         self.y = 0
-        enemy_index = random.randint(0, len(self.enemy_cars) - 1)
-        enemy_image = self.enemy_cars[enemy_index]
-        enemy_car = {'x': self.x, 'y': self.y, 'image': enemy_image}
-        self.enemy_instances.append(enemy_car)
+        index = random.randint(0, len(self.cars) - 1)
+        image = self.cars[index]
+        car = {'x': self.x, 'y': self.y, 'image': image}
+        self.instances.append(car)
 
-    def draw(self, gameDisplay):
-        for enemy_car in self.enemy_instances:
-            gameDisplay.blit(enemy_car['image'], (enemy_car['x'], enemy_car['y']))
+    def draw(self, gamedisplay):
+        for car in self.instances:
+            gamedisplay.blit(car['image'], (car['x'], car['y']))
         
             
 ## for grass           
@@ -177,9 +180,9 @@ class Grass:
     def __init__(self):
         self.grass =pygame.image.load("images/grass.jpg")
         
-    def draw(self,gameDisplay):
-        gameDisplay.blit(self.grass, (0, 0))
-        gameDisplay.blit(self.grass, (700, 0))
+    def draw(self,gamedisplay):
+        gamedisplay.blit(self.grass, (0, 0))
+        gamedisplay.blit(self.grass, (700, 0))
         
         
 ## for track       
@@ -193,13 +196,13 @@ class Track:
         self.white=pygame.transform.scale(self.white_strip,(self.width,self.height))
        
         
-    def draw(self,gameDisplay):
-        gameDisplay.blit(self.yellow_strip, (400, 0))
-        gameDisplay.blit(self.yellow_strip, (400, 150))
-        gameDisplay.blit(self.yellow_strip, (400, 300))
-        gameDisplay.blit(self.yellow_strip, (400, 450))
-        gameDisplay.blit(self.white, (100, 0))
-        gameDisplay.blit(self.white, (700, 0))
+    def draw(self,gamedisplay):
+        gamedisplay.blit(self.yellow_strip, (400, 0))
+        gamedisplay.blit(self.yellow_strip, (400, 150))
+        gamedisplay.blit(self.yellow_strip, (400, 300))
+        gamedisplay.blit(self.yellow_strip, (400, 450))
+        gamedisplay.blit(self.white, (100, 0))
+        gamedisplay.blit(self.white, (700, 0))
 
 
 class GameWindow:
@@ -207,7 +210,7 @@ class GameWindow:
         pygame.init()
         self.display_width = 800
         self.display_height = 600
-        self.gameDisplay = pygame.display.set_mode((self.display_width, self.display_height))
+        self.gamedisplay = pygame.display.set_mode((self.display_width, self.display_height))
         pygame.display.set_caption('Car Game')
         
         self.car = Playercar(40,80,5,386,510)
@@ -243,7 +246,7 @@ class GameWindow:
         self.score.count = 0
 
          # Reset enemy cars
-        self.enemycars.enemy_instances.clear()
+        self.enemycars.instances.clear()
 
     def run_game(self):
         clock = pygame.time.Clock()
@@ -252,16 +255,16 @@ class GameWindow:
             
             self.handle_events()
             if not self.start:
-                self.gameDisplay.fill((128, 128, 128))
+                self.gamedisplay.fill((128, 128, 128))
                 
-                self.score.draw(self.gameDisplay)
-                self.grass.draw(self.gameDisplay)
-                self.track.draw(self.gameDisplay)
-                self.car.draw(self.gameDisplay)
+                self.score.draw(self.gamedisplay)
+                self.grass.draw(self.gamedisplay)
+                self.track.draw(self.gamedisplay)
+                self.car.draw(self.gamedisplay)
             
-                self.score.draw(self.gameDisplay)
+                self.score.draw(self.gamedisplay)
             
-                self.enemycars.draw(self.gameDisplay)
+                self.enemycars.draw(self.gamedisplay)
                 
             
             # Only update the game if it's not paused
@@ -271,21 +274,23 @@ class GameWindow:
                     self.enemycars.move()
 
             if self.car.crashed:
-                self.crash.draw(self.gameDisplay)
+                self.crash.draw(self.gamedisplay)
             self.car.check_collision(self.enemycars)
 
 
             pygame.display.update()
             clock.tick(60)
 
+
+
 if __name__ == '__main__':
     
     game_window = GameWindow()
     background=Background(800,600)
    
-    background.draw(game_window.gameDisplay)
+    background.draw(game_window.gamedisplay)
     start_button = StartButton()
-    start_button.draw(game_window.gameDisplay)
+    start_button.draw(game_window.gamedisplay)
     
     game_window.run_game()
     
